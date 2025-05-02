@@ -1,4 +1,9 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.flutter_application_1"> <!-- Paket adınız farklıysa burayı kendi paket adınızla değiştirin -->
+
+    <!-- İnternet erişimi için gerekli izin (Genellikle Flutter projelerinde varsayılan olarak bulunur) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:label="flutter_application_1"
         android:name="${applicationName}"
@@ -31,15 +36,40 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
-    <!-- Required to query activities that can process text, see:
-         https://developer.android.com/training/package-visibility and
-         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
 
-         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <!-- ===== GÜNCELLENMİŞ QUERIES BLOĞU ===== -->
+    <!-- Android 11+ (API 30+) üzerinde diğer uygulamaları sorgulamak için gereklidir -->
     <queries>
+        <!-- Mevcut PROCESS_TEXT sorgusu -->
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+
+        <!-- YENİ EKLENDİ: url_launcher'ın web tarayıcılarını bulabilmesi için -->
+        <!-- HTTPS linklerini açabilen uygulamaları sorgulama izni -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <!-- HTTP linklerini açabilen uygulamaları sorgulama izni -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
+
+        <!-- Eğer tel:, mailto: gibi başka link türlerini de açacaksanız,
+             onlar için de benzer intent'ler ekleyebilirsiniz. Örnek:
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="mailto" />
+        </intent>
+         -->
     </queries>
+    <!-- ===== GÜNCELLEME BİTTİ ===== -->
+
 </manifest>
