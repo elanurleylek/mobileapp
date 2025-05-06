@@ -1,64 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/constants/app_constants.dart';
-import 'package:flutter_application_1/pages/login_page.dart'; // Çıkış yapınca yönlendirmek için
-// import 'package:flutter_application_1/services/auth_service.dart'; // Gerçek çıkış için lazım olacak
+import 'package:flutter_application_1/pages/login_page.dart';
+// import 'package:flutter_application_1/services/auth_service.dart'; // Gerçek çıkış için
 
-class ProfilPage extends StatelessWidget {
-  const ProfilPage({Key? key}) : super(key: key);
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key}); // super.key kullanımı
 
-  // Gerçek uygulamada kullanıcı bilgileri dışarıdan (state management ile) alınmalı
-  final String _userName = "Ayşe Yıldız"; // Placeholder
-  final String _userEmail = "ayse.yildiz@example.com"; // Placeholder
-  final String? _profileImageUrl = null; // Placeholder (null veya URL olabilir)
-  // final String? _profileImageUrl = 'https://via.placeholder.com/150'; // Örnek URL
+  // Gerçek uygulamada kullanıcı bilgileri state management ile alınmalı
+  final String _userName = "Ayşe Yıldız";
+  final String _userEmail = "ayse.yildiz@example.com";
+  // Örnek URL, kendi URL'nizle veya null ile değiştirin
+  final String? _profileImageUrl =
+      'https://i.pravatar.cc/150?img=32'; // Rastgele kadın avatarı
+  // final String? _profileImageUrl = null; // Profil resmi yoksa
+  final int _completedCourses = 7;
+  final int _completedProjects = 4;
 
-  // Çıkış yapma onayı dialogunu gösteren fonksiyon
-  void _showLogoutConfirmationDialog(BuildContext context) {
+  void _showLogoutConfirmationDialog(BuildContext pageContext) {
+    // build metodunun context'i
     showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) { // Dialog için ayrı context
+      context: pageContext, // pageContext kullanılıyor
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppConstants.paddingMedium),
+          ),
           title: const Text('Çıkış Yap'),
-          content: const Text('Hesabınızdan çıkış yapmak istediğinizden emin misiniz?'),
+          content: const Text(
+            'Hesabınızdan çıkış yapmak istediğinizden emin misiniz?',
+          ),
           actions: <Widget>[
             TextButton(
               child: const Text('İptal'),
               onPressed: () {
-                Navigator.of(dialogContext).pop(); // Sadece dialogu kapat
+                Navigator.of(dialogContext).pop();
               },
             ),
             TextButton(
-              child: const Text('Çıkış Yap', style: TextStyle(color: Colors.red)),
-              onPressed: () async { // async yaptık çünkü logout işlemi sürebilir
-                Navigator.of(dialogContext).pop(); // Önce dialogu kapat
+              child: const Text(
+                'Çıkış Yap',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () async {
+                Navigator.of(dialogContext).pop(); // Dialogu kapat
 
-                // --- GERÇEK ÇIKIŞ İŞLEMİ BURADA YAPILACAK ---
-                try {
-                  // print("Çıkış yapılıyor...");
-                  // Örnek: AuthService kullanarak çıkış yap
-                  // final authService = AuthService(); // Servis örneği alınmalı (Provider/Riverpod ile daha iyi)
-                  // await authService.logout();
+                // --- GERÇEK ÇIKIŞ İŞLEMİ ---
+                // print("Çıkış yapılıyor...");
+                // await Future.delayed(const Duration(seconds: 1)); // Örnek gecikme
+                // final authService = AuthService();
+                // await authService.logout();
 
-                  // Çıkış başarılı olduktan sonra Login sayfasına yönlendir ve geri gelmeyi engelle
-                  // 'context' burada build metodunun context'i olmalı.
-                   if (context.mounted) { // Widget hala ağaçta mı kontrolü
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
-                        (Route<dynamic> route) => false, // Tüm önceki sayfaları kaldır
-                      );
-                   }
-                } catch (e) {
-                   print("Çıkış sırasında hata: $e");
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Çıkış sırasında bir hata oluştu: ${e.toString()}'),
-                          backgroundColor: Colors.redAccent,
-                        ),
-                      );
-                   }
+                if (pageContext.mounted) {
+                  // Ana context'in geçerliliğini kontrol et
+                  Navigator.of(pageContext).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    (Route<dynamic> route) => false,
+                  );
                 }
-                // --- GERÇEK ÇIKIŞ İŞLEMİ SONU ---
               },
             ),
           ],
@@ -67,130 +65,279 @@ class ProfilPage extends StatelessWidget {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-    // AppBar'ın MainScaffold tarafından sağlandığını varsayıyoruz.
-    return SingleChildScrollView( // İçerik taşabilir, kaydırılabilir olmalı
-      child: Padding(
-        padding: const EdgeInsets.all(AppConstants.paddingMedium), // Genel padding
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center, // Ortala
-          children: <Widget>[
-            const SizedBox(height: AppConstants.paddingLarge), // Üst boşluk
+    final ThemeData theme = Theme.of(context);
 
-            // Profil Resmi (Avatar)
-            CircleAvatar(
-              radius: 60.0, // Avatar boyutu
-              backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1), // Hafif tema rengi arka plan
-              backgroundImage: _profileImageUrl != null
-                  ? NetworkImage(_profileImageUrl!) // URL varsa NetworkImage kullan
-                  : null, // URL yoksa null
-              child: _profileImageUrl == null
-                  ? Icon( // URL yoksa ikon göster
-                      Icons.person,
-                      size: 70,
-                      color: Theme.of(context).primaryColor,
-                    )
-                  : null, // URL varsa ikon gösterme
-            ),
-            const SizedBox(height: AppConstants.paddingMedium),
-
-            // Kullanıcı Adı
-            Text(
-              _userName, // Gerçek veri ile değiştirilecek
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AppConstants.paddingSmall),
-
-            // Kullanıcı E-postası
-            Text(
-              _userEmail, // Gerçek veri ile değiştirilecek
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AppConstants.paddingLarge * 1.5), // Daha fazla boşluk
-
-            // Ayırıcı Çizgi
-            const Divider(),
-            const SizedBox(height: AppConstants.paddingMedium),
-
-            // Eylem Butonları (ListTile ile)
-            _buildProfileActionTile(
-              context: context,
-              icon: Icons.edit_outlined,
-              title: 'Profili Düzenle',
-              onTap: () {
-                // TODO: Profili Düzenle sayfasına yönlendirme veya işlem
-                print('Profili Düzenle tıklandı');
-                 ScaffoldMessenger.of(context).showSnackBar(
-                   const SnackBar(content: Text('Profili Düzenle özelliği yakında!')),
-                 );
-              },
-            ),
-            _buildProfileActionTile(
-              context: context,
-              icon: Icons.settings_outlined,
-              title: 'Ayarlar',
-              onTap: () {
-                // TODO: Ayarlar sayfasına yönlendirme veya işlem
-                print('Ayarlar tıklandı');
-                 ScaffoldMessenger.of(context).showSnackBar(
-                   const SnackBar(content: Text('Ayarlar özelliği yakında!')),
-                 );
-              },
-            ),
-            _buildProfileActionTile(
-              context: context,
-              icon: Icons.help_outline,
-              title: 'Yardım ve Destek',
-              onTap: () {
-                // TODO: Yardım sayfasına yönlendirme veya işlem
-                print('Yardım tıklandı');
-                 ScaffoldMessenger.of(context).showSnackBar(
-                   const SnackBar(content: Text('Yardım özelliği yakında!')),
-                 );
-              },
-            ),
-
-            const Divider(), // Alt ayırıcı
-
-            // Çıkış Yap Butonu
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.redAccent),
-              title: const Text(
-                'Çıkış Yap',
-                style: TextStyle(color: Colors.redAccent),
+    return Scaffold(
+      // Profil sayfası kendi Scaffold'una sahip olabilir
+      // AppBar'ı burada veya MainScaffold'da tanımlayabilirsiniz
+      // appBar: AppBar(
+      //   title: const Text(AppConstants.profilPageTitle),
+      //   elevation: 0, // Daha modern bir görünüm için
+      //   backgroundColor: theme.scaffoldBackgroundColor, // Arka planla aynı
+      //   foregroundColor: theme.textTheme.bodyLarge?.color, // İkonlar için
+      // ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppConstants.paddingMedium,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              const SizedBox(
+                height: AppConstants.paddingLarge * 1.5,
+              ), // Üstten daha fazla boşluk
+              // --- Profil Resmi ---
+              CircleAvatar(
+                radius: 70.0,
+                backgroundColor: theme.colorScheme.primaryContainer.withOpacity(
+                  0.5,
+                ),
+                backgroundImage:
+                    _profileImageUrl != null
+                        ? NetworkImage(_profileImageUrl!)
+                        : null,
+                onBackgroundImageError:
+                    _profileImageUrl != null
+                        ? (exception, stackTrace) {
+                          print(
+                            "Profil resmi yüklenemedi: $_profileImageUrl, Hata: $exception",
+                          );
+                          // Hata durumunda bir şey göstermeyebilir veya varsayılan ikonu child'da bırakabiliriz
+                        }
+                        : null,
+                child:
+                    _profileImageUrl == null
+                        ? Icon(
+                          Icons.person_outline,
+                          size: 80,
+                          color: theme.colorScheme.primary,
+                        )
+                        : null,
               ),
-              onTap: () {
-                _showLogoutConfirmationDialog(context); // Onay al
-              },
-            ),
+              const SizedBox(height: AppConstants.paddingMedium),
 
-             const SizedBox(height: AppConstants.paddingLarge), // Alt boşluk
-          ],
+              // --- Kullanıcı Adı ve Email ---
+              Text(
+                _userName,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppConstants.paddingSmall / 2),
+              Text(
+                _userEmail,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppConstants.paddingLarge),
+
+              // --- İstatistikler ---
+              _buildStatsSection(theme),
+              const SizedBox(height: AppConstants.paddingLarge),
+
+              // --- Eylem Listesi ---
+              Card(
+                // Eylemleri bir kart içinde gruplandırma
+                elevation: 1,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    AppConstants.paddingMedium,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    _buildProfileActionTile(
+                      context: context,
+                      icon: Icons.edit_outlined,
+                      title: 'Profili Düzenle',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Profili Düzenle özelliği yakında!'),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    _buildProfileActionTile(
+                      context: context,
+                      icon: Icons.settings_outlined,
+                      title: 'Ayarlar',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Ayarlar özelliği yakında!'),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    _buildProfileActionTile(
+                      context: context,
+                      icon: Icons.notifications_outlined,
+                      title: 'Bildirimler',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Bildirimler özelliği yakında!'),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    _buildProfileActionTile(
+                      context: context,
+                      icon: Icons.security_outlined,
+                      title: 'Gizlilik ve Güvenlik',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Gizlilik ayarları yakında!'),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    _buildProfileActionTile(
+                      context: context,
+                      icon: Icons.help_outline,
+                      title: 'Yardım ve Destek',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Yardım merkezi yakında!'),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppConstants.paddingLarge),
+
+              // --- Çıkış Yap Butonu ---
+              ElevatedButton.icon(
+                icon: const Icon(Icons.logout, size: 20),
+                label: const Text('Çıkış Yap'),
+                onPressed: () => _showLogoutConfirmationDialog(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.error,
+                  foregroundColor: theme.colorScheme.onError,
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      AppConstants.paddingMedium,
+                    ),
+                  ),
+                  textStyle: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onError,
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: AppConstants.paddingLarge,
+              ), // En altta boşluk
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Tekrar kullanılabilir ListTile oluşturan yardımcı fonksiyon
+  Widget _buildStatsSection(ThemeData theme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: <Widget>[
+        _buildStatCard(
+          theme,
+          Icons.menu_book_outlined,
+          _completedCourses,
+          'Dersler',
+        ),
+        _buildStatCard(
+          theme,
+          Icons.emoji_objects_outlined,
+          _completedProjects,
+          'Projeler',
+        ),
+        // İsterseniz başka bir istatistik ekleyebilirsiniz
+        // _buildStatCard(theme, Icons.star_border_outlined, 12, 'Puan'),
+      ],
+    );
+  }
+
+  Widget _buildStatCard(
+    ThemeData theme,
+    IconData icon,
+    int count,
+    String label,
+  ) {
+    return Expanded(
+      // Kartların eşit yer kaplaması için
+      child: Card(
+        elevation: 2,
+        margin: const EdgeInsets.symmetric(
+          horizontal: AppConstants.paddingSmall / 2,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.paddingSmall),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppConstants.paddingMedium),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(icon, size: 32, color: theme.colorScheme.primary),
+              const SizedBox(height: AppConstants.paddingSmall / 2),
+              Text(
+                count.toString(),
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              Text(
+                label,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildProfileActionTile({
     required BuildContext context,
     required IconData icon,
     required String title,
-    required VoidCallback onTap,
+    VoidCallback? onTap, // Opsiyonel onTap
   }) {
+    final ThemeData theme = Theme.of(context);
     return ListTile(
-      leading: Icon(icon, color: Theme.of(context).primaryColor),
-      title: Text(title),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      leading: Icon(icon, color: theme.colorScheme.primary),
+      title: Text(title, style: theme.textTheme.titleMedium),
+      trailing:
+          onTap != null
+              ? const Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey,
+              )
+              : null,
       onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppConstants.paddingMedium,
+      ),
     );
   }
 }

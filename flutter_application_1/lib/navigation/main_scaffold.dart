@@ -24,7 +24,8 @@ class _MainScaffoldState extends State<MainScaffold> {
   void initState() {
     super.initState();
     _pageTitles = [
-      AppConstants.homePageTitle, // Ana sayfa başlığı AppBar'da gösterilmeyecek (kendi AppBar'ı var)
+      AppConstants
+          .homePageTitle, // Ana sayfa başlığı AppBar'da gösterilmeyecek (kendi AppBar'ı var)
       AppConstants.derslerPageTitle,
       AppConstants.projelerPageTitle,
       AppConstants.yarismaPageTitle,
@@ -36,7 +37,7 @@ class _MainScaffoldState extends State<MainScaffold> {
       const DerslerPage(),
       const ProjelerPage(),
       const YarismaPage(),
-      const ProfilPage(),
+      const ProfilePage(),
     ];
   }
 
@@ -54,18 +55,23 @@ class _MainScaffoldState extends State<MainScaffold> {
 
     return Scaffold(
       // AppBar'ı sadece gerekli sayfalarda göster
-      appBar: showMainAppBar
-          ? AppBar(
-              title: Text(
-                _pageTitles[_selectedIndex], // Seçili sayfanın başlığını göster
-                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-              ),
-              backgroundColor: Colors.white,
-              elevation: 1, // Hafif bir gölge
-              // İstersen buraya ortak action butonları ekleyebilirsin
-            )
-          : null, // Ana sayfada AppBar'ı bu Scaffold'da gösterme
-      body: IndexedStack( // Sayfalar arası geçişte state'i korumak için IndexedStack
+      appBar:
+          showMainAppBar
+              ? AppBar(
+                title: Text(
+                  _pageTitles[_selectedIndex], // Seçili sayfanın başlığını göster
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                backgroundColor: Colors.white,
+                elevation: 1, // Hafif bir gölge
+                // İstersen buraya ortak action butonları ekleyebilirsin
+              )
+              : null, // Ana sayfada AppBar'ı bu Scaffold'da gösterme
+      body: IndexedStack(
+        // Sayfalar arası geçişte state'i korumak için IndexedStack
         index: _selectedIndex,
         children: _pages,
       ),
